@@ -21,18 +21,24 @@ protocol APIVMable: ObservableObject {
     func doing(_ somethinglike: ActionType)
 }
 
+/// 响应协议 这里使用了 Combine 和 函数泛型
 protocol APISevType {
+    // 函数泛型通过 where 语句限制为遵循 APIReqType 协议即可
     func response<Request>(from req: Request) -> AnyPublisher<Request.Res, APISevError> where Request: APIReqType
 }
 
+/// 网络请求
 final class APISev: APISevType {
     private let rootUrl: URL
 
+    // 设置默认值并解包
     init(rootUrl: URL = URL(string: "https://api.github.com")!) {
         self.rootUrl = rootUrl
     }
 
+    // 协议方法实现
     func response<Request>(from req: Request) -> AnyPublisher<Request.Res, APISevError> where Request : APIReqType {
+        
         let path = URL(string: req.path, relativeTo: rootUrl)!
         var comp = URLComponents(url: path, resolvingAgainstBaseURL: true)!
         comp.queryItems = req.qItems
